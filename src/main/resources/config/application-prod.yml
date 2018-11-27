@@ -1,0 +1,13 @@
+server:
+  port: 8084
+
+#wechat
+wechat:
+  appid:
+  appsecret:
+  token:
+
+  pay:
+    mchid:
+    apikey:
+
