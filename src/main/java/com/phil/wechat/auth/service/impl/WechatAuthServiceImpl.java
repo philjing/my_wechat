@@ -10,6 +10,7 @@
 package com.phil.wechat.auth.service.impl;
 
 import com.google.gson.JsonSyntaxException;
+import com.phil.modules.cache.RedisUtils;
 import com.phil.modules.result.ResultState;
 import com.phil.modules.util.HttpUtil;
 import com.phil.modules.util.JsonUtil;
@@ -21,10 +22,12 @@ import com.phil.wechat.auth.model.response.AuthUserInfo;
 import com.phil.wechat.auth.model.response.JsapiTicket;
 import com.phil.wechat.auth.service.WechatAuthService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 
 /**
@@ -39,12 +42,14 @@ import java.util.TreeMap;
 @Slf4j
 public class WechatAuthServiceImpl implements WechatAuthService {
 
-    private final WechatAuthConfig wechatAuthConfig;
+    @Value("${wechat.token}")
+    private String token;
 
-    @Autowired
-    public WechatAuthServiceImpl(WechatAuthConfig wechatAuthConfig) {
-        this.wechatAuthConfig = wechatAuthConfig;
-    }
+    @Resource
+    private RedisUtils redisUtils;
+
+    @Resource
+    private WechatAuthConfig wechatAuthConfig;
 
     /**
      * 获取授权凭证token
@@ -55,17 +60,26 @@ public class WechatAuthServiceImpl implements WechatAuthService {
      */
     @Override
     public String getAccessToken(String appid, String secret) {
-        TreeMap<String, String> map = new TreeMap<>();
-        map.put("grant_type", "client_credential");
-        map.put("appid", appid);
-        map.put("secret", secret);
-        String json = HttpUtil.doGet(wechatAuthConfig.getGetAccessTokenUrl(), map,
-                "");
-        AccessToken accessToken = JsonUtil.fromJson(json, AccessToken.class);
-        if (accessToken != null) {
-            return accessToken.getAccessToken();
+        String accessToken = null;
+        if (Objects.isNull(redisUtils.get(token))) {
+            TreeMap<String, String> map = new TreeMap<>();
+            map.put("grant_type", "client_credential");
+            map.put("appid", appid);
+            map.put("secret", secret);
+            String json = HttpUtil.doGet(wechatAuthConfig.getGetAccessTokenUrl(), map,
+                    "");
+            AccessToken bean = JsonUtil.fromJson(json, AccessToken.class);
+            if (bean != null) {
+                accessToken = bean.getAccessToken();
+                log.info("从微信服务器获取的token======" + accessToken);
+                redisUtils.set(token, accessToken, 60 * 120);
+                log.info("从微信服务器获取的token缓存到Redis");
+            }
+        } else {
+            accessToken = redisUtils.get(token).toString();
+            log.info("从redis中获取的token === " + accessToken);
         }
-        return null;
+        return accessToken;
     }
 
     /**
