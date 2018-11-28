@@ -9,10 +9,12 @@
  */
 package com.phil.modules.util;
 
-import com.phil.wechat.message.model.basic.response.NewsMessage;
+import com.phil.wechat.message.model.basic.response.AbstractMessage;
+import com.phil.wechat.message.model.basic.response.MusicMessage;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
-import com.thoughtworks.xstream.io.xml.XmlFriendlyNameCoder;
+import com.thoughtworks.xstream.mapper.MapperWrapper;
+import com.thoughtworks.xstream.security.AnyTypePermission;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -47,11 +49,43 @@ public class XmlUtil {
     }
 
     /**
+     * @return
+     * @Description 为每次调用生成一个XStream
+     * @Title getInstance
+     */
+    private static XStream getInstance() {
+        XStream xStream = new XStream(new DomDriver(StandardCharsets.UTF_8.name())) {
+            /**
+             * 忽略xml中多余字段
+             */
+            @Override
+            protected MapperWrapper wrapMapper(MapperWrapper next) {
+                return new MapperWrapper(next) {
+                    @Override
+                    public boolean shouldSerializeMember(Class definedIn, String fieldName) {
+                        if (definedIn == Object.class) {
+                            return false;
+                        }
+                        return super.shouldSerializeMember(definedIn, fieldName);
+                    }
+                };
+            }
+        };
+        // 设置默认的安全校验
+        XStream.setupDefaultSecurity(xStream);
+        // 使用本地的类加载器
+        xStream.setClassLoader(XmlUtil.class.getClassLoader());
+        // 允许所有的类进行转换
+        xStream.addPermission(AnyTypePermission.ANY);
+        return xStream;
+    }
+
+    /**
      * @param request
      * @return
      * @throws IOException
      */
-    public static Map<String, Object> toMap(HttpServletRequest request) throws IOException {
+    public static Map<String, String> toMap(HttpServletRequest request) throws IOException {
         if (request != null && request.getInputStream() != null) {
             return toMap(request.getInputStream());
         }
@@ -62,8 +96,8 @@ public class XmlUtil {
      * @param inputStream
      * @return
      */
-    public static Map<String, Object> toMap(InputStream inputStream) {
-        Map<String, Object> map = new HashMap<>();
+    public static Map<String, String> toMap(InputStream inputStream) {
+        Map<String, String> map = new HashMap<>();
         try {
             SAXReader reader = new SAXReader();
             Document document = reader.read(inputStream);
@@ -126,33 +160,56 @@ public class XmlUtil {
      * <trade_type><![CDATA[JSAPI]]></trade_type> </xml>
      * 将xml数据(<![CDATA[SUCCESS]]>格式)映射到java对象中
      *
-     * @param xml 待转换的xml格式的数据
-     * @param cls 待转换为的java对象
+     * @param xml   待转换的xml格式的数据
+     * @param clazz 待转换为的java对象
      * @return
      */
-    public static <T> T fromXml(String xml, Class<T> cls) {
-        // 将从API返回的XML数据映射到Java对象
-        XStream xstream = new XStream(new DomDriver());
-//        xstream.alias(SystemConstant.XML, cls);
-        xstream.processAnnotations(cls);
-        xstream.ignoreUnknownElements();// 暂时忽略掉一些新增的字段
-        return cls.cast(xstream.fromXML(xml));
+    public static <T> T fromXml(String xml, Class<T> clazz) {
+//        // 将从API返回的XML数据映射到Java对象
+//        XStream xStream = new XStream(new DomDriver(StandardCharsets.UTF_8.name(), new XmlFriendlyNameCoder("-_", "_")));//解决下划线问题
+//        XStream.setupDefaultSecurity(xStream);
+//        xStream.allowTypes(new Class[]{t});
+//        xStream.alias("xml", t);
+////        xStream.processAnnotations(t);
+//        xStream.ignoreUnknownElements();// 暂时忽略掉一些新增的字段
+//        return (T) xStream.fromXML(xml);
+        XStream xStream = getInstance();
+        xStream.processAnnotations(clazz);
+        Object object = xStream.fromXML(xml);
+        return clazz.cast(object);
+
     }
 
     /**
      * 将java对象可转换为xml(<![CDATA[ ]]>格式)
      *
-     * @param obj
+     * @param object
      * @return
      */
-    public static String toXml(Object obj) {
-        XStream xStream = new XStream(new DomDriver(StandardCharsets.UTF_8.name(), new XmlFriendlyNameCoder("-_", "_")));//解决下划线问题
-        //xstream使用注解转换
-        xStream.processAnnotations(obj.getClass());
-        return StringEscapeUtils.unescapeXml(xStream.toXML(obj));
+    public static String toXml(Object object) {
+//        XStream xStream = new XStream(new DomDriver(StandardCharsets.UTF_8.name(), new XmlFriendlyNameCoder("-_", "_")));//解决下划线问题
+////        XStream.setupDefaultSecurity(xStream);
+//        //xstream使用注解转换
+//        xStream.processAnnotations(obj.getClass());
+
+        XStream xStream = getInstance();
+        xStream.processAnnotations(object.getClass());
+        // 剔除所有tab、制表符、换行符
+//        return xStream.toXML(object).replaceAll("\\s+", " ");
+        return StringEscapeUtils.unescapeXml(xStream.toXML(object));
     }
 
     public static void main(String[] args) {
+        String xml = "<xml><ToUserName><![CDATA[gh_dc6d7977e309]]></ToUserName>\n" +
+                "<FromUserName><![CDATA[ovHQ5v6CW3INkWUsCl3olODif0cc]]></FromUserName>\n" +
+                "<CreateTime>1543335018</CreateTime>\n" +
+                "<MsgType><![CDATA[text]]></MsgType>\n" +
+                "<Content><![CDATA[ffff]]></Content>\n" +
+                "<MsgId>6628573429517280185</MsgId>\n" +
+                "</xml>";
+        System.out.println(XmlUtil.fromXml(xml, AbstractMessage.class));
+
+
 //        TextMessage message = new TextMessage();
 //        message.setContent("11");
 //        message.setCreateTime(System.currentTimeMillis() / 1000L);
@@ -162,25 +219,25 @@ public class XmlUtil {
 //        System.out.println(XmlUtil.toXml(message));
 //        System.out.println(StringEscapeUtils.unescapeXml(XmlUtil.toXml(message)));
 //
-//        MusicMessage musicMessage = new MusicMessage();
-//        MusicMessage.Music music = new MusicMessage.Music();
-//        music.setDescription("de");
-//        music.setHqMusicUrl("hq");
-//        musicMessage.setMusic(music);
-//        musicMessage.setFromUserName("from");
-//        musicMessage.setToUserName("to");
-//        System.out.println(XmlUtil.toXml(musicMessage));
+        MusicMessage musicMessage = new MusicMessage();
+        MusicMessage.Music music = new MusicMessage.Music();
+        music.setDescription("de");
+        music.setHqMusicUrl("hq");
+        musicMessage.setMusic(music);
+        musicMessage.setFromUserName("from");
+        musicMessage.setToUserName("to");
+        System.out.println(XmlUtil.toXml(musicMessage));
 
-        NewsMessage newsMessage = new NewsMessage();
-        NewsMessage.Item item1 = new NewsMessage.Item();
-        item1.setPicurl("pic");
-        NewsMessage.Item item2 = new NewsMessage.Item();
-        item2.setPicurl("pic");
-        newsMessage.addArticle(item1);
-        newsMessage.addArticle(item2);
-
-        newsMessage.setFromUserName("from");
-        newsMessage.setToUserName("to");
-        System.out.println(XmlUtil.toXml(newsMessage));
+//        NewsMessage newsMessage = new NewsMessage();
+//        NewsMessage.Item item1 = new NewsMessage.Item();
+//        item1.setPicurl("pic");
+//        NewsMessage.Item item2 = new NewsMessage.Item();
+//        item2.setPicurl("pic");
+//        newsMessage.addArticle(item1);
+//        newsMessage.addArticle(item2);
+//
+//        newsMessage.setFromUserName("from");
+//        newsMessage.setToUserName("to");
+//        System.out.println(XmlUtil.toXml(newsMessage));
     }
 }

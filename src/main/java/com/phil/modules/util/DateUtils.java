@@ -85,17 +85,16 @@ public class DateUtils {
      *
      * @param pattern
      * @return
-     * @author Phil
      * @throws Exception
+     * @author Phil
      */
     public static String getDateString(String pattern) throws Exception {
         if (StringUtils.isBlank(pattern)) {
             throw new Exception("请指定日期格式");
         }
         Timestamp time = getSysDate();
-        DateFormat dfmt = new SimpleDateFormat(pattern);
-        java.util.Date date = time;
-        return dfmt.format(date);
+        FastDateFormat fdt = FastDateFormat.getInstance(pattern);
+        return fdt.format(time);
     }
 
     /**
@@ -104,8 +103,8 @@ public class DateUtils {
      * @param time
      * @param pattern
      * @return
-     * @author Phil
      * @throws Exception
+     * @author Phil
      */
     public static String getDateString(Timestamp time, String pattern) throws Exception {
         if (time == null) {
@@ -114,9 +113,8 @@ public class DateUtils {
         if (StringUtils.isBlank(pattern)) {
             throw new Exception("请指定格式");
         }
-        DateFormat dfmt = new SimpleDateFormat(pattern);
-        java.util.Date date = time;
-        return date != null ? dfmt.format(date) : "";
+        FastDateFormat fdt = FastDateFormat.getInstance(pattern);
+        return fdt.format(time);
     }
 
     /**
@@ -125,8 +123,8 @@ public class DateUtils {
      * @param date
      * @param pattern
      * @return
-     * @author Phil
      * @throws Exception
+     * @author Phil
      */
     public static String getDateString(Date date, String pattern) throws Exception {
         if (date == null) {
@@ -135,8 +133,8 @@ public class DateUtils {
         if (StringUtils.isBlank(pattern)) {
             throw new Exception("请指定格式");
         }
-        SimpleDateFormat sdfmt = new SimpleDateFormat(pattern);
-        return date != null ? sdfmt.format(date) : "";
+        FastDateFormat fdt = FastDateFormat.getInstance(pattern);
+        return fdt.format(date);
     }
 
     /**
@@ -145,8 +143,8 @@ public class DateUtils {
      * @param str
      * @param fomat
      * @return
-     * @author Phil
      * @throws Exception
+     * @author Phil
      */
     public static boolean isValidDate(String str, String fomat) throws Exception {
         if (StringUtils.isBlank(str)) {
@@ -157,9 +155,8 @@ public class DateUtils {
         }
         boolean flag = true;
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat(fomat);
-            sdf.parse(str);
-            flag = true;
+            FastDateFormat fdt = FastDateFormat.getInstance(fomat);
+            fdt.parse(str);
         } catch (ParseException e) {
             log.error(e.getMessage(), e);
             flag = false;
@@ -172,8 +169,8 @@ public class DateUtils {
      *
      * @param str
      * @return
-     * @author Phil
      * @throws Exception
+     * @author Phil
      */
     public static Date str2Date(String str) throws Exception {
         Date date = null;
@@ -194,8 +191,8 @@ public class DateUtils {
      *
      * @param str
      * @return
-     * @author Phil
      * @throws Exception
+     * @author Phil
      */
     public static Date str2Timestamp(String str) throws Exception {
         Date date = null;
@@ -212,8 +209,8 @@ public class DateUtils {
      * @param dateStr
      * @param format
      * @return
-     * @author Phil
      * @throws Exception
+     * @author Phil
      */
     public static Date toDate(String dateStr, String format) throws Exception {
         if (StringUtils.isBlank(dateStr)) {
@@ -222,9 +219,9 @@ public class DateUtils {
         if (StringUtils.isBlank(format)) {
             throw new Exception("请指定格式");
         }
-        DateFormat df = new SimpleDateFormat(format);
+        FastDateFormat fdt = FastDateFormat.getInstance(format);
         try {
-            java.util.Date date = df.parse(dateStr);
+            java.util.Date date = fdt.parse(dateStr);
             return new Date(date.getTime());
         } catch (ParseException e) {
             log.error(e.getMessage(), e);
@@ -236,8 +233,8 @@ public class DateUtils {
      * 获取日期 如：2011-12-12
      *
      * @return
-     * @author Phil
      * @throws Exception
+     * @author Phil
      */
     public static Date getDate() throws Exception {
         String s = getDateString(DATETIME_FORMAT);
@@ -249,8 +246,8 @@ public class DateUtils {
      *
      * @param sysDate
      * @return
-     * @author Phil
      * @throws Exception
+     * @author Phil
      */
     public static Date getTheDayDate(Timestamp sysDate) throws Exception {
         DateFormat dfmt = new SimpleDateFormat(DATETIME_FORMAT);
@@ -265,8 +262,8 @@ public class DateUtils {
      * @param sysDate
      * @param offsetDays
      * @return
-     * @author Phil
      * @throws Exception
+     * @author Phil
      */
     public static Date getOffsetDaysDate(Timestamp sysDate, int offsetDays) throws Exception {
         Timestamp t = getOffsetDaysTime(sysDate, offsetDays);
@@ -440,8 +437,8 @@ public class DateUtils {
      *
      * @param yyyyMM
      * @return
-     * @author Phil
      * @throws Exception
+     * @author Phil
      */
     public static String getMonth(String yyyyMM) throws Exception {
         if (StringUtils.isBlank(yyyyMM) || yyyyMM.length() != 6) {
@@ -503,10 +500,8 @@ public class DateUtils {
     /**
      * 两个日期相差月份
      *
-     * @param beginDate
-     *            yyyyMM
-     * @param endDate
-     *            yyyyMM
+     * @param beginDate yyyyMM
+     * @param endDate   yyyyMM
      * @return
      * @author shanxf
      */
@@ -542,10 +537,8 @@ public class DateUtils {
     /**
      * 计算两个日期之间相差天数
      *
-     * @param beginDate
-     *            yyyyMM
-     * @param endDate
-     *            yyyyMM
+     * @param beginDate yyyyMM
+     * @param endDate   yyyyMM
      * @return
      * @author shanxf
      */
@@ -568,10 +561,8 @@ public class DateUtils {
     /**
      * 获取指定月份的偏移月数所在的月
      *
-     * @param date
-     *            yyyyMM
-     * @param offsetMonth
-     *            （正数：以后，负数：以前）
+     * @param date        yyyyMM
+     * @param offsetMonth （正数：以后，负数：以前）
      * @return
      * @author shanxf
      */
@@ -687,8 +678,8 @@ public class DateUtils {
      * @param time
      * @param pattern
      * @return
-     * @author mayt
      * @throws Exception
+     * @author mayt
      */
     public static Timestamp getTimestamp(String time, String pattern) throws Exception {
         if (StringUtils.isBlank(time)) {

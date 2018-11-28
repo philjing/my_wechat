@@ -10,8 +10,7 @@
 package com.phil.wechat.message.model.basic.response;
 
 import com.phil.modules.converter.CDATAConvert;
-import com.phil.wechat.message.model.basic.AbstractMessage;
-import com.phil.wechat.message.model.basic.MsgType;
+import com.phil.wechat.message.constant.MsgTypeConstant;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import lombok.Getter;
@@ -44,7 +43,7 @@ public class NewsMessage extends AbstractMessage {
     @Override
     public String setMsgType() {
 
-        return MsgType.NEWS.getType();
+        return MsgTypeConstant.RESP_MESSAGE_TYPE_NEWS;
     }
 
     public void addArticle(Item item) {

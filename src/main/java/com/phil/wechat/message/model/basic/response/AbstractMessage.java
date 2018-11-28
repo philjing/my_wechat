@@ -7,13 +7,15 @@
  * <author>          <time>          <version>          <desc>
  * 作者姓名           修改时间           版本号              描述
  */
-package com.phil.wechat.message.model.basic;
+package com.phil.wechat.message.model.basic.response;
 
 import com.phil.modules.converter.CDATAConvert;
+import com.phil.modules.util.XmlUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.io.Serializable;
 
@@ -27,6 +29,7 @@ import java.io.Serializable;
  */
 @Getter
 @Setter
+@ToString
 @XStreamAlias("xml")
 public abstract class AbstractMessage implements Serializable {
 
@@ -48,4 +51,8 @@ public abstract class AbstractMessage implements Serializable {
     private String msgType = setMsgType();
 
     public abstract String setMsgType();
+
+    public String toXml() {
+        return XmlUtil.toXml(this);
+    }
 }
