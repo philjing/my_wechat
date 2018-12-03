@@ -11,7 +11,6 @@ import com.phil.wechat.mass.model.request.type.MassImageType;
 import com.phil.wechat.mass.model.request.type.MassMpnewsType;
 import com.phil.wechat.mass.model.request.type.MassTextType;
 import com.phil.wechat.mass.model.request.type.MassVoiceType;
-import com.phil.wechat.mass.model.response.MassNewsResult;
 import com.phil.wechat.mass.service.WechatMassService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,23 +43,23 @@ public class WechatMassServiceImplTest {
     public void uploadMassNews() {
         MassNews massNews = new MassNews();
         String filePath1 = "C:/Users/Phil/Desktop/1034851200_副本_副本.jpg";
-        MassNewsResult r1 = wechatMassService.uploadForMassNewsFile(accessToken, "image", filePath1);
+        String mediaId1 = wechatMassService.uploadForMassNewsFile(accessToken, "image", filePath1);
 
         MassNews.MassNewsArticle article1 = new MassNews.MassNewsArticle();
         article1.setAuthor("phil");
         article1.setContent("Hello");
         article1.setContentSourceUrl("");
-        article1.setThumbMediaId(r1.getMediaId());
+        article1.setThumbMediaId(mediaId1);
         massNews.addArticle(article1);
 
         String filePath2 = "C:/Users/Phil/Desktop/23213.jpg";
-        MassNewsResult r2 = wechatMassService.uploadForMassNewsFile(accessToken, "image", filePath2);
+        String mediaId2 = wechatMassService.uploadForMassNewsFile(accessToken, "image", filePath2);
 
         MassNews.MassNewsArticle article2 = new MassNews.MassNewsArticle();
         article2.setAuthor("phil");
         article2.setContent("Hello");
         article2.setContentSourceUrl("");
-        article2.setThumbMediaId(r2.getMediaId());
+        article2.setThumbMediaId(mediaId2);
         massNews.addArticle(article2);
         System.out.println(wechatMassService.uploadMassNews(accessToken, massNews));
     }

@@ -27,11 +27,9 @@ public interface WechatAuthService {
     /**
      * 获取授权凭证token
      *
-     * @param appid  应用appid
-     * @param secret 应用密匙
      * @return json格式的字符串
      */
-    String getAccessToken(String appid, String secret);
+    String getAccessToken();
 
     /**
      * 获取授权请求url

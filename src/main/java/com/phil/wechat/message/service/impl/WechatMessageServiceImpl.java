@@ -15,11 +15,10 @@ import com.phil.modules.util.DateUtils;
 import com.phil.wechat.message.model.basic.request.RequestMessage;
 import com.phil.wechat.message.model.basic.response.TextMessage;
 import com.phil.wechat.message.service.WechatMessageService;
-import com.phil.wechat.message.service.WechatTemplateMessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
+import java.util.Map;
 
 /**
  * 〈一句话功能简述〉<br>
@@ -33,41 +32,32 @@ import javax.annotation.Resource;
 @Slf4j
 public class WechatMessageServiceImpl implements WechatMessageService {
 
-    @Resource
-    WechatTemplateMessageService wechatTemplateMessageService;
-
-    @Override
-    public String sendTextMsg(RequestMessage message) {
-        TextMessage text = new TextMessage();
-        text.setContent("测试自动回复" + message.getContent().trim());// 自动回复
-        text.setCreateTime(DateUtils.getCurrentTimeMillis());
-        text.setToUserName(message.getFromUserName());
-        text.setFromUserName(message.getToUserName());
-        return text.toXml();
-    }
-
-    @Override
-    public WechatResult sendLinkMsg(RequestMessage message) {
-        return null;
-    }
-
     @Override
     public WechatResult defaultMsg(RequestMessage message) {
         return null;
     }
 
     @Override
-    public WechatResult sendMusicMsg(RequestMessage message) {
-        return null;
+    public WechatResult sendTextMsg(RequestMessage message, Map<String, Object> map) {
+        WechatResult result = new WechatResult();
+        TextMessage text = new TextMessage();
+        text.setContent("测试自动回复" + message.getContent().trim());// 自动回复
+        text.setCreateTime(DateUtils.getCurrentTimeMillis());
+        text.setToUserName(message.getFromUserName());
+        text.setFromUserName(message.getToUserName());
+        result.setResponse(text);
+        result.setTemplate(true);
+
+        for (Map.Entry<String,Object> entry : map.entrySet()){
+
+
+
+        }
+        return result;
     }
 
     @Override
     public WechatResult senImageMsg(RequestMessage message) {
-        return null;
-    }
-
-    @Override
-    public WechatResult sendLocationMsg(RequestMessage message) {
         return null;
     }
 
@@ -82,9 +72,15 @@ public class WechatMessageServiceImpl implements WechatMessageService {
     }
 
     @Override
-    public WechatResult sendShortvideo(RequestMessage message) {
+    public WechatResult sendMusicMsg(RequestMessage message) {
         return null;
     }
+
+    @Override
+    public WechatResult sendNewsMsg(RequestMessage message) {
+        return null;
+    }
+
 
     @Override
     public String doSubscribe(RequestMessage message) {
@@ -102,12 +98,15 @@ public class WechatMessageServiceImpl implements WechatMessageService {
     }
 
     @Override
-    public String doScan(RequestMessage message) {
+    public WechatResult doScan(RequestMessage message) {
+        WechatResult result = new WechatResult();
         TextMessage text = new TextMessage();
         text.setContent("已关注事件二维码参数" + message.getEventKey());// 自动回复
         text.setCreateTime(DateUtils.getCurrentTimeMillis());
         text.setToUserName(message.getFromUserName());
         text.setFromUserName(message.getToUserName());
-        return text.toXml();
+        result.setResponse(text);
+        result.setTemplate(true);
+        return result;
     }
 }

@@ -59,7 +59,6 @@ public class SignatureUtil {
         return DigestUtils.md5Hex(str);
     }
 
-
     /**
      * @param obj     要参与签名的Clas
      * @param keys    参数

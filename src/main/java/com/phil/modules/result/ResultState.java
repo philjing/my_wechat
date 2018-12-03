@@ -9,7 +9,9 @@
  */
 package com.phil.modules.result;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.io.Serializable;
 
@@ -21,7 +23,9 @@ import java.io.Serializable;
  * @create 8/2/2018 12:54
  * @since 1.0.0
  */
-@Data
+@Getter
+@Setter
+@ToString
 public class ResultState implements Serializable {
 
     private static final long serialVersionUID = -6184155678037435926L;

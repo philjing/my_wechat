@@ -17,7 +17,7 @@ import lombok.ToString;
 import java.io.Serializable;
 
 /**
- * 〈一句话功能简述〉<br> 
+ * 〈一句话功能简述〉<br>
  * 〈上传图文消息素材返回的结果〉
  *
  * @author Phil
@@ -39,4 +39,5 @@ public class MassNewsResult implements Serializable {
     @SerializedName("created_at")
     private long createdAt; // 媒体上传成功的时间戳
 
+    private String url;  //新增的图片素材的图片URL
 }

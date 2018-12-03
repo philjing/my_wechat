@@ -7,7 +7,7 @@
  * <author>          <time>          <version>          <desc>
  * 作者姓名           修改时间           版本号              描述
  */
-package com.phil.modules.cache;
+package com.phil.modules.util;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;

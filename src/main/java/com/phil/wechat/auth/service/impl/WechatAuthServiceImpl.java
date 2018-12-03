@@ -10,10 +10,11 @@
 package com.phil.wechat.auth.service.impl;
 
 import com.google.gson.JsonSyntaxException;
-import com.phil.modules.cache.RedisUtils;
+import com.phil.modules.config.WechatAccountConfig;
 import com.phil.modules.result.ResultState;
 import com.phil.modules.util.HttpUtil;
 import com.phil.modules.util.JsonUtil;
+import com.phil.modules.util.RedisUtils;
 import com.phil.wechat.auth.config.WechatAuthConfig;
 import com.phil.wechat.auth.model.AbstractParams;
 import com.phil.wechat.auth.model.response.AccessToken;
@@ -46,38 +47,41 @@ public class WechatAuthServiceImpl implements WechatAuthService {
     private String token;
 
     @Resource
-    private RedisUtils redisUtils;
+    RedisUtils redisUtils;
 
     @Resource
-    private WechatAuthConfig wechatAuthConfig;
+    WechatAuthConfig wechatAuthConfig;
+
+    @Resource
+    private WechatAccountConfig wechatAccountConfig;
 
     /**
      * 获取授权凭证token
+     * <p>
+     * //     * @param appid  应用appid
+     * //     * @param secret 应用密匙
      *
-     * @param appid  应用appid
-     * @param secret 应用密匙
      * @return json格式的字符串
      */
     @Override
-    public String getAccessToken(String appid, String secret) {
+    public String getAccessToken() {
         String accessToken = null;
         if (Objects.isNull(redisUtils.get(token))) {
-            TreeMap<String, String> map = new TreeMap<>();
+            Map<String, String> map = new TreeMap<>();
+            map.put("appid", wechatAccountConfig.getAppid());
+            map.put("secret", wechatAccountConfig.getAppsecret());
             map.put("grant_type", "client_credential");
-            map.put("appid", appid);
-            map.put("secret", secret);
-            String json = HttpUtil.doGet(wechatAuthConfig.getGetAccessTokenUrl(), map,
-                    "");
+            String json = HttpUtil.doGet(wechatAuthConfig.getGetAccessTokenUrl(), map);
             AccessToken bean = JsonUtil.fromJson(json, AccessToken.class);
             if (bean != null) {
                 accessToken = bean.getAccessToken();
-                log.info("从微信服务器获取的token======" + accessToken);
+                log.info("从微信服务器获取的授权凭证{}", accessToken);
                 redisUtils.set(token, accessToken, 60 * 120);
                 log.info("从微信服务器获取的token缓存到Redis");
             }
         } else {
             accessToken = redisUtils.get(token).toString();
-            log.info("从redis中获取的token === " + accessToken);
+            log.info("从redis中获取的授权凭证{}", accessToken);
         }
         return accessToken;
     }
@@ -106,7 +110,7 @@ public class WechatAuthServiceImpl implements WechatAuthService {
     @Override
     public AuthAccessToken getAuthAccessToken(AbstractParams basic, String url) {
         try {
-            String result = HttpUtil.doGet(wechatAuthConfig.getGetOauthTokenUrl(), basic.getParams(), null);
+            String result = HttpUtil.doGet(wechatAuthConfig.getGetOauthTokenUrl(), basic.getParams());
             return JsonUtil.fromJson(result, AuthAccessToken.class);
         } catch (Exception e) {
             log.debug("error" + e.getMessage());
@@ -124,7 +128,7 @@ public class WechatAuthServiceImpl implements WechatAuthService {
     @Override
     public AuthAccessToken refreshAuthAccessToken(AbstractParams basic, String url) {
         try {
-            String result = HttpUtil.doGet(wechatAuthConfig.getRefreshOauthTokenUrl(), basic.getParams(), null);
+            String result = HttpUtil.doGet(wechatAuthConfig.getRefreshOauthTokenUrl(), basic.getParams());
             return JsonUtil.fromJson(result, AuthAccessToken.class);
         } catch (Exception e) {
             log.debug("error" + e.getMessage());
@@ -145,8 +149,7 @@ public class WechatAuthServiceImpl implements WechatAuthService {
         Map<String, String> params = new TreeMap<>();
         params.put("openid", openid);
         params.put("access_token", accessToken);
-        String result = HttpUtil.doGet(wechatAuthConfig.getSnsUserinfoUrl(), params,
-                null);
+        String result = HttpUtil.doGet(wechatAuthConfig.getSnsUserinfoUrl(), params);
         try {
             return JsonUtil.fromJson(result, AuthUserInfo.class);
         } catch (JsonSyntaxException e) {
@@ -169,7 +172,7 @@ public class WechatAuthServiceImpl implements WechatAuthService {
         params.put("access_token", accessToken);
         params.put("openid", openid);
         String jsonResult = HttpUtil.doGet(
-                wechatAuthConfig.getCheckSnsAuthStatusUrl(), params, "");
+                wechatAuthConfig.getCheckSnsAuthStatusUrl(), params);
         return JsonUtil.fromJson(jsonResult, ResultState.class);
     }
 
@@ -184,8 +187,7 @@ public class WechatAuthServiceImpl implements WechatAuthService {
         Map<String, String> params = new TreeMap<>();
         params.put("access_token", accessToken);
         params.put("type", "jsapi");
-        String result = HttpUtil.doGet(wechatAuthConfig.getGetTicketUrl(), params,
-                "");
+        String result = HttpUtil.doGet(wechatAuthConfig.getGetTicketUrl(), params);
         JsapiTicket jsapiTicket = JsonUtil.fromJson(result, JsapiTicket.class);
         if (jsapiTicket.getErrcode() == 0) {
             return jsapiTicket.getTicket();

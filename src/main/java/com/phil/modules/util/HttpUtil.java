@@ -44,6 +44,12 @@ import java.util.TreeMap;
 @Slf4j
 public class HttpUtil {
 
+    private static MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
+
+    protected static final String POST_METHOD = "POST";
+
+    private static final String GET_METHOD = "GET";
+
     static {
         TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
             @Override
@@ -75,13 +81,6 @@ public class HttpUtil {
         }
     }
 
-    private static MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
-
-    protected static final String POST_METHOD = "POST";
-
-    protected static final String GET_METHOD = "GET";
-
-
     /**
      * 默认的http请求执行方法
      *
@@ -102,11 +101,11 @@ public class HttpUtil {
         return result;
     }
 
-    public static String get(String url, Map<String, String> map, String data) {
-        return HttpDefaultExecute(url, GET_METHOD, map, data);
+    public static String httpGet(String url, Map<String, String> map) {
+        return HttpDefaultExecute(url, GET_METHOD, map, null);
     }
 
-    public static String post(String url, Map<String, String> map, String data) {
+    public static String httpPost(String url, Map<String, String> map, String data) {
         return HttpDefaultExecute(url, POST_METHOD, map, data);
     }
 
@@ -120,18 +119,17 @@ public class HttpUtil {
      * @return result
      */
     private static String HttpsDefaultExecute(String url, String method, Map<String, String> map, String data) {
-        String result = "";
         try {
             url = setParmas(url, map, null);
-            result = defaultConnection(url, method, data);
+            return defaultConnection(url, method, data);
         } catch (Exception e) {
             log.error("出错参数 {}", map);
         }
-        return result;
+        return "";
     }
 
-    public static String doGet(String url, Map<String, String> map, String data) {
-        return HttpsDefaultExecute(url, GET_METHOD, map, data);
+    public static String doGet(String url, Map<String, String> map) {
+        return HttpsDefaultExecute(url, GET_METHOD, map, null);
     }
 
     public static String doPost(String url, Map<String, String> map, String data) {
@@ -154,7 +152,7 @@ public class HttpUtil {
         HttpURLConnection conn = getConnection(url, method);
         if (StringUtils.isNotEmpty(data)) {
             OutputStream output = conn.getOutputStream();
-            output.write(data.getBytes(StandardCharsets.UTF_8.name()));
+            output.write(data.getBytes(StandardCharsets.UTF_8));
             output.flush();
             output.close();
         }
@@ -164,6 +162,7 @@ public class HttpUtil {
             input.close();
             conn.disconnect();
         }
+//        log.info(result);
         return result;
     }
 
@@ -175,6 +174,7 @@ public class HttpUtil {
      * @return conn
      * @throws IOException 异常
      */
+    //待改进
     protected static HttpURLConnection getConnection(URL url, String method) throws IOException {
         HttpURLConnection conn;
         if (StringUtils.equals(SystemConstant.URL_PROTOCOL_HTTPS, url.getProtocol())) {
@@ -187,16 +187,48 @@ public class HttpUtil {
         }
         conn.setRequestProperty("Pragma", "no-cache");// 设置不适用缓存
         conn.setRequestProperty("Cache-Control", "no-cache");
+        conn.setRequestProperty("Connection", "Close");// 不支持Keep-Alive
         conn.setUseCaches(false);
         conn.setDoOutput(true);
         conn.setDoInput(true);
         conn.setInstanceFollowRedirects(true);
         conn.setRequestMethod(method);
-        conn.setRequestProperty("Connection", "Close");// 不支持Keep-Alive
-        conn.setConnectTimeout(6000);
-        conn.setReadTimeout(6000);
+        conn.setConnectTimeout(8000);
+        conn.setReadTimeout(8000);
+
         return conn;
     }
+
+
+    /**
+     * 根据url
+     *
+     * @param url 请求路径
+     * @return isFile
+     * @throws IOException 异常
+     */
+    //待改进
+    protected static HttpURLConnection getConnection(URL url, boolean isFile) throws IOException {
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        if (conn == null) {
+            throw new IOException("connection can not be null");
+        }
+        //设置从httpUrlConnection读入
+        conn.setDoInput(true);
+        conn.setDoOutput(true);
+        conn.setUseCaches(false);
+        //如果是上传文件，则设为POST
+        if (isFile) {
+            conn.setRequestMethod(POST_METHOD); //GET和 POST都可以 文件略大改成POST
+        }
+        // 设置请求头信息
+        conn.setRequestProperty("Connection", "Keep-Alive");
+        conn.setRequestProperty("Charset", String.valueOf(StandardCharsets.UTF_8));
+        conn.setConnectTimeout(8000);
+        conn.setReadTimeout(8000);
+        return conn;
+    }
+
 
     /**
      * 拼接参数
@@ -245,7 +277,6 @@ public class HttpUtil {
         log.debug("request url is {}", url);
         return url;
     }
-
 
     /**
      * 默认的下载素材方法
@@ -314,7 +345,6 @@ public class HttpUtil {
         return ip;
     }
 
-
     /**
      * 根据内容类型判断文件扩展名
      * 采用apache的tika
@@ -324,7 +354,7 @@ public class HttpUtil {
      */
     protected static String getFileExt(String contentType) {
         if (contentType == null) {
-            return StringUtils.EMPTY;
+            return "";
         }
         try {
             MimeType mimeType = allTypes.forName(contentType);
@@ -332,7 +362,7 @@ public class HttpUtil {
         } catch (MimeTypeException e) {
             e.printStackTrace();
         }
-        return null;
+        return "";
     }
 
     /**
@@ -358,7 +388,7 @@ public class HttpUtil {
             if (StringUtils.equals(contentType, MimeTypes.PLAIN_TEXT) || StringUtils.equals(contentType, MediaType.APPLICATION_JSON_VALUE)) {
                 result.setErrmsg(IOUtils.toString(input));
             } else {
-                result = inputStreamToMedia(input, savePath, type);
+                result = inputToMedia(input, savePath, type);
             }
         } catch (Exception ex) {
             result.setErrcode(-1);
@@ -375,7 +405,7 @@ public class HttpUtil {
      * @param type     jpg/png等
      * @return
      */
-    private static ResultState inputStreamToMedia(InputStream input, String savePath, String type) {
+    private static ResultState inputToMedia(InputStream input, String savePath, String type) {
         ResultState result = new ResultState();
         File file = new File(savePath);
         String paramPath = file.getParent(); // 路径
@@ -397,25 +427,25 @@ public class HttpUtil {
         return result;
     }
 
-//    /**
-//     * 〈MyX509TrustManager〉
-//     *
-//     * @author Phil
-//     * @create 8/2/2018 20:28
-//     * @since 1.0.0
-//     */
-//    public static class MyX509TrustManager implements X509TrustManager {
-//
-//        public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
-//        }
-//
-//        public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
-//        }
-//
-//        public X509Certificate[] getAcceptedIssuers() {
-//            return null;
-//        }
-//    }
+    /**
+     * 将网络URL转换成文件流
+     *
+     * @param url    网络URL
+     * @param output 输出流
+     * @return
+     */
+    public static void toOutput(String url, OutputStream output) throws IOException {
+        URL path = new URL(url);
+        HttpURLConnection connection = (HttpURLConnection) path.openConnection();
+        connection.setDoInput(true);
+        connection.connect();
+        try (InputStream input = connection.getInputStream()) {
+            IOUtils.copy(input, output);
+            connection.disconnect();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+    }
 
     public static void main(String[] args) {
         System.out.println(getFileExt("image/jpeg"));

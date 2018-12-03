@@ -54,28 +54,43 @@ public class WechatMassServiceImpl implements WechatMassService {
      * @return
      */
     @Override
-    public MassNewsResult uploadForMassNewsFile(String accessToken, String type, String filePath) {
+    public String uploadForMassNewsFile(String accessToken, String type, String filePath) {
         Map<String, String> params = new TreeMap<>();
         params.put("access_token", accessToken);
         params.put("type", type);
         try {
             String result = MaterialUtil.uploadMediaFile(wechatMassConfig.getUploadMediaUrl(), params, filePath);
-            return JsonUtil.fromJson(result, MassNewsResult.class);
+            return JsonUtil.fromJson(result, MassNewsResult.class).getMediaId();
         } catch (Exception e) {
             log.error(e.getMessage());
         }
         return null;
     }
 
+    /**
+     * 上传图文消息素材得到media_id
+     *
+     * @param accessToken
+     * @param entity
+     * @return
+     * @see com.phil.wechat.material.service.impl.WechatMaterialServiceImpl#uploadNewsMedia
+     */
     @Override
-    public MassNewsResult uploadMassNews(String accessToken, MassNews entity) {
+    public String uploadMassNews(String accessToken, MassNews entity) {
         Map<String, String> params = new HashMap<>();
         params.put("access_token", accessToken);
         String data = JsonUtil.toJson(entity);
         String result = HttpUtil.doPost(wechatMassConfig.getUploadNewsUrl(), params, data);
-        return JsonUtil.fromJson(result, MassNewsResult.class);
+        return JsonUtil.fromJson(result, MassNewsResult.class).getMediaId();
     }
 
+    /**
+     * 根据OpenId进行群发消息
+     *
+     * @param accessToken
+     * @param massData
+     * @return
+     */
     @Override
     public MassMsgResult sendToOpenid(String accessToken, MassUserData massData) {
         Map<String, String> params = new HashMap<>();
@@ -86,6 +101,13 @@ public class WechatMassServiceImpl implements WechatMassService {
         return JsonUtil.fromJson(result, MassMsgResult.class);
     }
 
+    /**
+     * 根据Tag进行群发消息
+     *
+     * @param accessToken
+     * @param massData
+     * @return
+     */
     @Override
     public MassMsgResult sendToTag(String accessToken, MassTagData massData) {
         Map<String, String> params = new HashMap<>();
@@ -94,6 +116,16 @@ public class WechatMassServiceImpl implements WechatMassService {
         return JsonUtil.fromJson(result, MassMsgResult.class);
     }
 
+    /*
+     * 有bug!!!!
+     */
+    /**
+     * 根据OpenId进行群发消息预览
+     *
+     * @param accessToken
+     * @param massData
+     * @return
+     */
     @Override
     public MassMsgResult previewToOpenid(String accessToken, Map<String, String> massData) {
         Map<String, String> params = new HashMap<>();
@@ -111,6 +143,14 @@ public class WechatMassServiceImpl implements WechatMassService {
         return JsonUtil.fromJson(result, MassMsgResult.class);
     }
 
+    /**
+     * 删除群发
+     *
+     * @param accessToken
+     * @param msgId       发送出去的消息ID
+     * @param articleIdx  要删除的文章在图文消息中的位置，第一篇编号为1，该字段不填或填0会删除全部文章
+     * @return
+     */
     @Override
     public ResultState deleteMassMessage(String accessToken, String msgId, int articleIdx) {
         Map<String, String> params = new HashMap<>();
@@ -122,12 +162,19 @@ public class WechatMassServiceImpl implements WechatMassService {
         return JsonUtil.fromJson(result, ResultState.class);
     }
 
+    /**
+     * 查询群发消息发送状态
+     *
+     * @param accessToken
+     * @param msgId       发送出去的消息ID
+     * @return
+     */
     @Override
     public MassMsgStatusResult getMassMessageStatus(String accessToken, String msgId) {
         Map<String, String> params = new HashMap<>();
         params.put("access_token", accessToken);
         JsonObject json = new JsonObject();
-        json.addProperty("msg_id",msgId);
+        json.addProperty("msg_id", msgId);
         String result = HttpUtil.doPost(wechatMassConfig.getGetMassMessageStatusUrl(), params, json.toString());
         return JsonUtil.fromJson(result, MassMsgStatusResult.class);
     }

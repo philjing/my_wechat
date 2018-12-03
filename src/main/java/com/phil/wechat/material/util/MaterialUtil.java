@@ -9,16 +9,15 @@
  */
 package com.phil.wechat.material.util;
 
-import com.phil.modules.constant.SystemConstant;
 import com.phil.modules.util.HttpUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 〈一句话功能简述〉<br>
@@ -28,6 +27,7 @@ import java.util.Map;
  * @create 11/20/2018 9:13 PM
  * @since 1.0
  */
+@Slf4j
 public class MaterialUtil extends HttpUtil {
 
     /**
@@ -41,42 +41,34 @@ public class MaterialUtil extends HttpUtil {
      */
     public static String uploadMediaFile(String api, Map<String, String> param, String mediaPath)
             throws Exception {
-        URL url = new URL(setParmas(api, param, StringUtils.EMPTY));
         try {
+            URL url = new URL(setParmas(api, param, ""));
             File file = new File(mediaPath);
             if (!file.isFile() || !file.exists()) {
                 throw new IOException("file is not exist");
             }
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.setDoInput(true);
-            con.setDoOutput(true);
-            con.setUseCaches(false);
-            con.setRequestMethod(POST_METHOD);
-            // 设置请求头信息
-            con.setRequestProperty("Connection", "Keep-Alive");
-            con.setRequestProperty("Charset", String.valueOf(StandardCharsets.UTF_8));
+            HttpURLConnection conn = getConnection(url, true);
             // 设置边界
             String boundary = "----------" + System.currentTimeMillis();
-            con.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+            conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
             // 请求正文信息
             // 第一部分
-            OutputStream output = new DataOutputStream(con.getOutputStream());
-            IOUtils.write(("--" + boundary + "\r\n").getBytes(), output);
-            IOUtils.write(("Content-Disposition: form-data;name=\"media\"; filename=\"" + file.getName() + "\"\r\n")
-                    .getBytes(), output);
-            IOUtils.write(
-                    "Content-Type:application/octet-stream\r\n\r\n".getBytes(),
-                    output);
-            // IOUtils.write(("Content-Type: "+ fileExt + "\r\n\r\n").getBytes(), output);
-            // 文件正文部分
-            // 把文件已流文件的方式 推入到url中
-            DataInputStream inputStream = new DataInputStream(new FileInputStream(file));
-            IOUtils.copy(inputStream, output);
-            // 结尾部分
-            IOUtils.write(("\r\n--" + boundary + "--\r\n").getBytes(), output);
-            output.flush();
-            return IOUtils.toString(con.getInputStream());
+            try (OutputStream output = new DataOutputStream(conn.getOutputStream())) {
+                IOUtils.write(("--" + boundary + "\r\n").getBytes(), output);
+                IOUtils.write(("Content-Disposition: form-data;name=\"media\"; filename=\"" + file.getName() + "\"\r\n")
+                        .getBytes(), output);
+                IOUtils.write("Content-Type:application/octet-stream\r\n\r\n".getBytes(), output);
+                // 文件正文部分 把文件已流文件的方式 推入到url中
+                DataInputStream input = new DataInputStream(new FileInputStream(file));
+                IOUtils.copy(input, output);
+                // 结尾部分
+                IOUtils.write(("\r\n--" + boundary + "--\r\n").getBytes(), output);
+                output.flush();
+                conn.disconnect();
+            }
+            return IOUtils.toString(conn.getInputStream());
         } catch (IOException e) {
+            log.error(e.getMessage());
             throw new IOException("read data error");
         }
     }
@@ -90,36 +82,35 @@ public class MaterialUtil extends HttpUtil {
      * @return
      * @throws Exception
      */
-    public static String uploadMedia(String api, Map<String, String> param, String mediaPath) throws Exception {
-        URL url = new URL(setParmas(api, param, StringUtils.EMPTY));
+    public static String uploadMediaUrl(String api, Map<String, String> param, String mediaPath) throws Exception {
         try {
+            URL url = new URL(setParmas(api, param, ""));
             String boundary = "----";
             HttpURLConnection conn = getConnection(url, POST_METHOD);
-            conn.setConnectTimeout(SystemConstant.HTTP_DEFAULT_CONNTIME);
-            conn.setReadTimeout(SystemConstant.HTTP_DEFAULT_READTIME);
             conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
-            OutputStream output = conn.getOutputStream();
-            URL mediaUrl = new URL(mediaPath);
-            HttpURLConnection mediaConn = (HttpURLConnection) mediaUrl.openConnection();
-            mediaConn.setDoOutput(true);
-            mediaConn.setUseCaches(false);
-            mediaConn.setRequestMethod(POST_METHOD);
-            mediaConn.setConnectTimeout(SystemConstant.HTTP_DEFAULT_CONNTIME);
-            mediaConn.setReadTimeout(SystemConstant.HTTP_DEFAULT_READTIME);
-            String connType = mediaConn.getContentType();
-            // 获得文件扩展
-            String fileExt = getFileExt(connType);
-            IOUtils.write(("--" + boundary + "\r\n").getBytes(), output);
-            IOUtils.write(("Content-Disposition: form-data; name=\"media\"; filename=\"" + getFileName(mediaPath)
-                    + "\"\r\n").getBytes(), output);
-            IOUtils.write(("Content-Type: " + fileExt + "\r\n\r\n").getBytes(), output);
-            BufferedInputStream inputStream = new BufferedInputStream(mediaConn.getInputStream());
-            IOUtils.copy(inputStream, output);
-            IOUtils.write(("\r\n----" + boundary + "--\r\n").getBytes(), output);
-            mediaConn.disconnect();
+            try (OutputStream output = new DataOutputStream(conn.getOutputStream())) {
+                URL mediaUrl = new URL(mediaPath);
+                HttpURLConnection mediaConn = getConnection(mediaUrl, false);
+                String connType = mediaConn.getContentType();
+                // 获得文件扩展
+                String fileExt = getFileExt(connType);
+                if (Objects.isNull(fileExt)){
+                    throw new IOException("the url cannot support this method");
+                }
+                IOUtils.write(("--" + boundary + "\r\n").getBytes(), output);
+                IOUtils.write(("Content-Disposition: form-data; name=\"media\"; filename=\"" + getFileName(mediaPath)
+                        + "\"\r\n").getBytes(), output);
+                IOUtils.write(("Content-Type: " + fileExt + "\r\n\r\n").getBytes(), output);
+                BufferedInputStream input = new BufferedInputStream(mediaConn.getInputStream());
+                IOUtils.copy(input, output);
+                IOUtils.write(("\r\n----" + boundary + "--\r\n").getBytes(), output);
+                mediaConn.disconnect();
+                conn.disconnect();
+            }
             // 获取输入流
             return IOUtils.toString(conn.getInputStream());
         } catch (IOException e) {
+            log.error(e.getMessage());
             throw new IOException("read data error");
         }
     }
@@ -143,30 +134,28 @@ public class MaterialUtil extends HttpUtil {
                 throw new IOException("file is not exist");
             }
             URL url = new URL(setParmas(api, param, null));
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            HttpURLConnection conn = getConnection(url, POST_METHOD);
+            conn.setRequestProperty("Connection", "Keep-Alive");
             conn.setConnectTimeout(5000);
             conn.setReadTimeout(30000);
-            conn.setDoOutput(true);
-            conn.setDoInput(true);
-            conn.setUseCaches(false);
-            conn.setRequestMethod(POST_METHOD);
-            conn.setRequestProperty("Connection", "Keep-Alive");
-            conn.setRequestProperty("Cache-Control", "no-cache");
-            String boundary = "-----------------------------" + System.currentTimeMillis();
+            String boundary = "----------" + System.currentTimeMillis();
             conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-            OutputStream output = conn.getOutputStream();
-            output.write(("--" + boundary + "\r\n").getBytes());
-            output.write(String.format("Content-Disposition: form-data; name=\"media\"; filename=\"%s\"\r\n", file.getName()).getBytes());
-            output.write("Content-Type: video/mp4 \r\n\r\n".getBytes());
-            FileInputStream input = new FileInputStream(file);
-            IOUtils.copy(input, output);
-            output.write(("--" + boundary + "\r\n").getBytes());
-            output.write("Content-Disposition: form-data; name=\"description\";\r\n\r\n".getBytes());
-            output.write(String.format("{\"title\":\"%s\", \"introduction\":\"%s\"}", title, introduction).getBytes());
-            output.write(("\r\n--" + boundary + "--\r\n\r\n").getBytes());
-            output.flush();
+            try (OutputStream output = new DataOutputStream(conn.getOutputStream())) {
+                output.write(("--" + boundary + "\r\n").getBytes());
+                output.write(String.format("Content-Disposition: form-data; name=\"media\"; filename=\"%s\"\r\n", file.getName()).getBytes());
+                output.write("Content-Type: video/mp4 \r\n\r\n".getBytes());
+                FileInputStream input = new FileInputStream(file);
+                IOUtils.copy(input, output);
+                output.write(("--" + boundary + "\r\n").getBytes());
+                output.write("Content-Disposition: form-data; name=\"description\";\r\n\r\n".getBytes());
+                output.write(String.format("{\"title\":\"%s\", \"introduction\":\"%s\"}", title, introduction).getBytes());
+                output.write(("\r\n--" + boundary + "--\r\n\r\n").getBytes());
+                output.flush();
+                conn.disconnect();
+            }
             return IOUtils.toString(conn.getInputStream());
         } catch (IOException e) {
+            log.error(e.getMessage());
             throw new IOException("read data error");
         }
     }
@@ -179,50 +168,39 @@ public class MaterialUtil extends HttpUtil {
      * @param mediaPath    待上传的voide 的path
      * @param title        视频标题
      * @param introduction 视频描述
-     * @param connTime     连接时间 默认为5000
-     * @param readTime     读取时间 默认为5000
+     *                     //     * @param connTime     连接时间 默认为5000
+     *                     //     * @param readTime     读取时间 默认为5000
      * @return
      * @throws Exception
      */
-    public static String uploadVideoMedia(String api,  Map<String, String> param, String mediaPath,
-                                          String title, String introduction, int connTime, int readTime) throws Exception {
-        URL url = new URL(setParmas(api, param, null));
+    public static String uploadVideoMediaUrl(String api, Map<String, String> param, String mediaPath,
+                                             String title, String introduction) throws Exception {
         try {
+            URL url = new URL(setParmas(api, param, null));
             String boundary = "----";
             HttpURLConnection conn = getConnection(url, POST_METHOD);
-            conn.setConnectTimeout(connTime == 0 ? SystemConstant.HTTP_DEFAULT_CONNTIME : connTime);
-            conn.setReadTimeout(readTime == 0 ? SystemConstant.HTTP_DEFAULT_READTIME : readTime);
             conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
-            OutputStream output = conn.getOutputStream();
-            URL mediaUrl = new URL(mediaPath);
-            HttpURLConnection mediaConn = (HttpURLConnection) mediaUrl.openConnection();
-            mediaConn.setDoOutput(true);
-            mediaConn.setUseCaches(false);
-            mediaConn.setRequestMethod(POST_METHOD);
-            mediaConn.setConnectTimeout(connTime == 0 ? SystemConstant.HTTP_DEFAULT_CONNTIME : connTime);
-            mediaConn.setReadTimeout(readTime == 0 ? SystemConstant.HTTP_DEFAULT_READTIME : readTime);
-            IOUtils.write(("--" + boundary + "\r\n").getBytes(), output);
-            IOUtils.write(("Content-Disposition: form-data; name=\"media\"; filename=\"" + getFileName(mediaPath)
-                    + "\"\r\n").getBytes(), output);
-            IOUtils.write("Content-Type: video/mp4 \r\n\r\n".getBytes(), output);
-            BufferedInputStream inputStream = new BufferedInputStream(mediaConn.getInputStream());
-            IOUtils.copy(inputStream, output);
-            // 结尾部分
-//                IOUtils.write(("--" + boundary + "\r\n").getBytes(SystemConstant.DEFAULT_ENCODING), output);
-//                IOUtils.write("Content-Disposition: form-data; name=\"description\";\r\n\r\n"
-//                        .getBytes(SystemConstant.DEFAULT_ENCODING), output);
-//                IOUtils.write(("{\"title\":\"" + title + "\",\"introduction\":\"" + introduction + "\"}")
-//                        .getBytes(SystemConstant.DEFAULT_ENCODING), output);
-//                IOUtils.write(("\r\n--" + boundary + "--\r\n\r\n").getBytes(SystemConstant.DEFAULT_ENCODING),
-//                        output);
-            IOUtils.write(("--" + boundary + "\r\n").getBytes(), output);
-            IOUtils.write("Content-Disposition: form-data; name=\"description\";\r\n\r\n".getBytes(), output);
-            IOUtils.write(String.format("{\"title\":\"%s\", \"introduction\":\"%s\"}", title, introduction).getBytes(), output);
-            IOUtils.write(("\r\n--" + boundary + "--\r\n\r\n").getBytes(), output);
-            mediaConn.disconnect();
+            try (OutputStream output = new DataOutputStream(conn.getOutputStream())) {
+                URL mediaUrl = new URL(mediaPath);
+                HttpURLConnection mediaConn = getConnection(mediaUrl, false);
+                IOUtils.write(("--" + boundary + "\r\n").getBytes(), output);
+                IOUtils.write(("Content-Disposition: form-data; name=\"media\"; filename=\"" + getFileName(mediaPath)
+                        + "\"\r\n").getBytes(), output);
+                IOUtils.write("Content-Type: video/mp4 \r\n\r\n".getBytes(), output);
+                BufferedInputStream input = new BufferedInputStream(mediaConn.getInputStream());
+                IOUtils.copy(input, output);
+                // 结尾部分
+                IOUtils.write(("--" + boundary + "\r\n").getBytes(), output);
+                IOUtils.write("Content-Disposition: form-data; name=\"description\";\r\n\r\n".getBytes(), output);
+                IOUtils.write(String.format("{\"title\":\"%s\", \"introduction\":\"%s\"}", title, introduction).getBytes(), output);
+                IOUtils.write(("\r\n--" + boundary + "--\r\n\r\n").getBytes(), output);
+                mediaConn.disconnect();
+                conn.disconnect();
+            }
             // 获取输入流
             return IOUtils.toString(conn.getInputStream());
         } catch (IOException e) {
+            log.error(e.getMessage());
             throw new IOException("read data error");
         }
     }

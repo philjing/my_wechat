@@ -32,6 +32,6 @@ public class WechatMessageConfig {
 
     private String sendTemplateMessageUrl;
 
-
+    private String apiAddTemplateUrl;
 
 }

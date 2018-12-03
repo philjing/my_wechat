@@ -11,7 +11,7 @@
 //
 //import com.phil.modules.cache.RedisUtils;
 //import com.phil.modules.config.WechatAccountConfig;
-//import com.phil.wechat.auth.service.WechatAuthService;
+//import com.phil.wechat.auth.impl.WechatAuthService;
 //import lombok.extern.slf4j.Slf4j;
 //import org.springframework.beans.factory.annotation.Value;
 //import org.springframework.scheduling.annotation.Scheduled;

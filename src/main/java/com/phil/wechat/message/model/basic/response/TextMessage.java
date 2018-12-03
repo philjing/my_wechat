@@ -10,7 +10,7 @@
 package com.phil.wechat.message.model.basic.response;
 
 import com.phil.modules.converter.CDATAConvert;
-import com.phil.wechat.message.constant.MsgTypeConstant;
+import com.phil.wechat.message.constant.WechatMessageConstant;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import lombok.Getter;
@@ -39,6 +39,6 @@ public class TextMessage extends AbstractMessage {
 
     @Override
     public String setMsgType() {
-        return MsgTypeConstant.RESP_MESSAGE_TYPE_TEXT;
+        return WechatMessageConstant.RESP_MESSAGE_TYPE_TEXT;
     }
 }

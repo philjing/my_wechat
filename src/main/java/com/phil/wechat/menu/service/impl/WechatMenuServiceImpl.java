@@ -56,7 +56,7 @@ public class WechatMenuServiceImpl implements WechatMenuService {
     public ResultState deleteMenu(String accessToken) {
         Map<String, String> params = new HashMap<>();
         params.put("access_token", accessToken);
-        String result = HttpUtil.doGet(wechatMenuConfig.getDelteUrl(), params, null);
+        String result = HttpUtil.doGet(wechatMenuConfig.getDelteUrl(), params);
         return JsonUtil.fromJson(result, ResultState.class);
     }
 
@@ -64,7 +64,7 @@ public class WechatMenuServiceImpl implements WechatMenuService {
     public CondResult addConditional(String accessToken) {
         Map<String, String> params = new HashMap<>();
         params.put("access_token", accessToken);
-        String result = HttpUtil.doGet(wechatMenuConfig.getAddconditionalUrl(), params, null);
+        String result = HttpUtil.doGet(wechatMenuConfig.getAddconditionalUrl(), params);
         return JsonUtil.fromJson(result, CondResult.class);
     }
 
@@ -90,6 +90,6 @@ public class WechatMenuServiceImpl implements WechatMenuService {
     public String getConditionalConfig(String accessToken) {
         Map<String, String> params = new HashMap<>();
         params.put("access_token", accessToken);
-        return HttpUtil.doGet(wechatMenuConfig.getGetCurrentSelfmenuUrl(), params, null);
+        return HttpUtil.doGet(wechatMenuConfig.getGetCurrentSelfmenuUrl(), params);
     }
 }

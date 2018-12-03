@@ -19,9 +19,9 @@ import com.phil.wechat.qrcode.model.WechatQRCode;
 import com.phil.wechat.qrcode.model.WechatQRCodeShortUrl;
 import com.phil.wechat.qrcode.service.WechatQRCodeService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.TreeMap;
 
 /**
@@ -36,12 +36,8 @@ import java.util.TreeMap;
 @Slf4j
 public class WechatQRCodeServiceImpl implements WechatQRCodeService {
 
-    private final WechatQRCodeConfig WechatQRCodeConfig;
-
-    @Autowired
-    public WechatQRCodeServiceImpl(WechatQRCodeConfig WechatQRCodeConfig) {
-        this.WechatQRCodeConfig = WechatQRCodeConfig;
-    }
+    @Resource
+    private WechatQRCodeConfig WechatQRCodeConfig;
 
     /**
      * 创建临时带参数二维码
@@ -65,8 +61,8 @@ public class WechatQRCodeServiceImpl implements WechatQRCodeService {
         actionInfo.add("scene", scene);
         data.add("action_info", actionInfo);
         String result = HttpUtil.doPost(WechatQRCodeConfig.getCreateTicketUrl(), params, data.toString());
-        WechatQRCode wechatQRCode = JsonUtil.fromJson(result, WechatQRCode.class);
-        return wechatQRCode == null ? null : wechatQRCode.getTicket();
+        WechatQRCode qrcode = JsonUtil.fromJson(result, WechatQRCode.class);
+        return qrcode == null ? null : qrcode.getTicket();
     }
 
     /**
@@ -91,8 +87,8 @@ public class WechatQRCodeServiceImpl implements WechatQRCodeService {
         actionInfo.add("scene", scene);
         data.add("action_info", actionInfo);
         String result = HttpUtil.doPost(WechatQRCodeConfig.getCreateTicketUrl(), params, data.toString());
-        WechatQRCode wechatQRCode = JsonUtil.fromJson(result, WechatQRCode.class);
-        return wechatQRCode == null ? null : wechatQRCode.getTicket();
+        WechatQRCode qrcode = JsonUtil.fromJson(result, WechatQRCode.class);
+        return qrcode == null ? null : qrcode.getTicket();
     }
 
     /**
@@ -115,8 +111,8 @@ public class WechatQRCodeServiceImpl implements WechatQRCodeService {
         actionInfo.add("scene", scene);
         data.add("action_info", actionInfo);
         String result = HttpUtil.doPost(WechatQRCodeConfig.getCreateTicketUrl(), params, data.toString());
-        WechatQRCode wechatQRCode = JsonUtil.fromJson(result, WechatQRCode.class);
-        return wechatQRCode == null ? null : wechatQRCode.getTicket();
+        WechatQRCode qrcode = JsonUtil.fromJson(result, WechatQRCode.class);
+        return qrcode == null ? null : qrcode.getTicket();
     }
 
     /**
@@ -139,8 +135,8 @@ public class WechatQRCodeServiceImpl implements WechatQRCodeService {
         actionInfo.add("scene", scene);
         data.add("action_info", actionInfo);
         String result = HttpUtil.doPost(WechatQRCodeConfig.getCreateTicketUrl(), params, data.toString());
-        WechatQRCode wechatQRCode = JsonUtil.fromJson(result, WechatQRCode.class);
-        return wechatQRCode == null ? null : wechatQRCode.getTicket();
+        WechatQRCode qrcode = JsonUtil.fromJson(result, WechatQRCode.class);
+        return qrcode == null ? null : qrcode.getTicket();
     }
 
     /**

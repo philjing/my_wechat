@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName;
 import com.phil.modules.annotation.NotRequire;
 import com.phil.modules.util.JsonUtil;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
@@ -18,6 +19,7 @@ import java.util.Map;
  */
 @Getter
 @Setter
+@NoArgsConstructor
 public class WechatTemplateMessage implements Serializable {
 
     private static final long serialVersionUID = -1035536196053732735L;
@@ -38,6 +40,12 @@ public class WechatTemplateMessage implements Serializable {
 
     private Map<String, Map<String, String>> data; //data数据
 
+    public WechatTemplateMessage(String touser, String templateId, String url) {
+        this.touser = touser;
+        this.templateId = templateId;
+        this.url = url;
+    }
+
     /**
      * 参数
      *
@@ -48,7 +56,7 @@ public class WechatTemplateMessage implements Serializable {
     public Map<String, String> item(String value, String color) {
         Map<String, String> params = new HashMap<>();
         params.put("value", value);
-        params.put("color", color);
+        params.put("color", color == null ? "#000000" : color);
         return params;
     }
 

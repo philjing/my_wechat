@@ -21,6 +21,7 @@ package com.phil.wechat.message.model.basic.request;
 
 import com.phil.modules.converter.CDATAConvert;
 import com.phil.modules.util.XmlUtil;
+import com.phil.wechat.message.constant.WechatMessageConstant;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import lombok.Getter;
@@ -56,23 +57,23 @@ public class RequestMessage implements Serializable {
     /**
      * <pre>
      * 当接受用户消息时，可能会获得以下值：
-     * {@link com.phil.wechat.message.constant.MsgTypeConstant#REQ_MESSAGE_TYPE_TEXT}
-     * {@link com.phil.wechat.message.constant.MsgTypeConstant#REQ_MESSAGE_TYPE_IMAGE}
-     * {@link com.phil.wechat.message.constant.MsgTypeConstant#REQ_MESSAGE_TYPE_VOICE}
-     * {@link com.phil.wechat.message.constant.MsgTypeConstant#REQ_MESSAGE_TYPE_VIDEO}
-     * {@link com.phil.wechat.message.constant.MsgTypeConstant#REQ_MESSAGE_TYPE_LOCATION}
-     * {@link com.phil.wechat.message.constant.MsgTypeConstant#REQ_MESSAGE_TYPE_LINK}
-     * {@link com.phil.wechat.message.constant.MsgTypeConstant#REQ_MESSAGE_TYPE_EVENT}
+     * {@link WechatMessageConstant#REQ_MESSAGE_TYPE_TEXT}
+     * {@link WechatMessageConstant#REQ_MESSAGE_TYPE_IMAGE}
+     * {@link WechatMessageConstant#REQ_MESSAGE_TYPE_VOICE}
+     * {@link WechatMessageConstant#REQ_MESSAGE_TYPE_VIDEO}
+     * {@link WechatMessageConstant#REQ_MESSAGE_TYPE_LOCATION}
+     * {@link WechatMessageConstant#REQ_MESSAGE_TYPE_LINK}
+     * {@link WechatMessageConstant#REQ_MESSAGE_TYPE_EVENT}
      * </pre>
      *
      * <pre>
      * 当发送消息的时候使用：
-     * {@link com.phil.wechat.message.constant.MsgTypeConstant#RESP_MESSAGE_TYPE_TEXT}
-     * {@link com.phil.wechat.message.constant.MsgTypeConstant#RESP_MESSAGE_TYPE_IMAGE}
-     * {@link com.phil.wechat.message.constant.MsgTypeConstant#RESP_MESSAGE_TYPE_VOICE}
-     * {@link com.phil.wechat.message.constant.MsgTypeConstant#RESP_MESSAGE_TYPE_VIDEO}
-     * {@link com.phil.wechat.message.constant.MsgTypeConstant#RESP_MESSAGE_TYPE_NEWS}
-     * {@link com.phil.wechat.message.constant.MsgTypeConstant#RESP_MESSAGE_TYPE_MUSIC}
+     * {@link WechatMessageConstant#RESP_MESSAGE_TYPE_TEXT}
+     * {@link WechatMessageConstant#RESP_MESSAGE_TYPE_IMAGE}
+     * {@link WechatMessageConstant#RESP_MESSAGE_TYPE_VOICE}
+     * {@link WechatMessageConstant#RESP_MESSAGE_TYPE_VIDEO}
+     * {@link WechatMessageConstant#RESP_MESSAGE_TYPE_NEWS}
+     * {@link WechatMessageConstant#RESP_MESSAGE_TYPE_MUSIC}
      * </pre>
      *
      * @return

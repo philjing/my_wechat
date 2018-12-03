@@ -12,6 +12,8 @@ package com.phil.wechat.message.service;
 import com.phil.modules.result.WechatResult;
 import com.phil.wechat.message.model.basic.request.RequestMessage;
 
+import java.util.Map;
+
 /**
  * 〈微信消息处理，基本消息收发回复、模板消息〉<br>
  * 〈〉
@@ -23,23 +25,6 @@ import com.phil.wechat.message.model.basic.request.RequestMessage;
 public interface WechatMessageService {
 
     /**
-     * 用户发送的为文本消息
-     *
-     * @param message    基础消息
-     * @return 返回需要该消息回复的xml格式类型的字符串
-     */
-    String sendTextMsg(RequestMessage message);
-
-
-    /**
-     * 链接消息
-     *
-     * @param message
-     * @return 返回需要该消息回复的xml格式类型的字符串
-     */
-    WechatResult sendLinkMsg(RequestMessage message);
-
-    /**
      * 默认执行的消息
      *
      * @param message
@@ -48,15 +33,16 @@ public interface WechatMessageService {
     WechatResult defaultMsg(RequestMessage message);
 
     /**
-     * 音乐执行的消息
+     * 回复文本消息
      *
-     * @param message    基础参数
+     * @param message 基础消息
+     * @param map     额外配置的信息(彩蛋之类的)
      * @return 返回需要该消息回复的xml格式类型的字符串
      */
-    WechatResult sendMusicMsg(RequestMessage message);
+    WechatResult sendTextMsg(RequestMessage message, Map<String, Object> map);
 
     /**
-     * 图片消息
+     * 回复图片消息
      *
      * @param message
      * @return 返回需要该消息回复的xml格式类型的字符串
@@ -64,15 +50,7 @@ public interface WechatMessageService {
     WechatResult senImageMsg(RequestMessage message);
 
     /**
-     * 地理位置消息
-     *
-     * @param message
-     * @return 返回需要该消息回复的xml格式类型的字符串
-     */
-    WechatResult sendLocationMsg(RequestMessage message);
-
-    /**
-     * 语音消息
+     * 回复语音消息
      *
      * @param message
      * @return 返回需要该消息回复的xml格式类型的字符串
@@ -80,20 +58,31 @@ public interface WechatMessageService {
     WechatResult sendVoiceMsg(RequestMessage message);
 
     /**
-     * 视频消息
+     * 回复视频消息
      *
-     * @param message    消息基类
+     * @param message 消息基类
      * @return 返回需要该消息回复的xml格式类型的字符串
      */
     WechatResult sendVideoMsg(RequestMessage message);
 
     /**
-     * 小视频消息
+     * 回复音乐消息
+     *
+     * @param message 基础参数
+     * @return 返回需要该消息回复的xml格式类型的字符串
+     */
+    WechatResult sendMusicMsg(RequestMessage message);
+
+    /**
+     * 回复图文消息
      *
      * @param message
      * @return 返回需要该消息回复的xml格式类型的字符串
      */
-    WechatResult sendShortvideo(RequestMessage message);
+    WechatResult sendNewsMsg(RequestMessage message);
+
+
+
 
     /**
      * 用户关注时调用的方法
@@ -117,6 +106,6 @@ public interface WechatMessageService {
      * @param message
      * @return
      */
-    String doScan(RequestMessage message);
+    WechatResult doScan(RequestMessage message);
 
 }

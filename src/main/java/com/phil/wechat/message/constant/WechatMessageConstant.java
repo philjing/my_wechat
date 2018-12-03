@@ -1,5 +1,5 @@
 /**
- * FileName: MsgTypeConstant
+ * FileName: WechatMessageConstant
  * Author:   Phil
  * Date:     11/27/2018 10:33 PM
  * Description:
@@ -17,7 +17,7 @@ package com.phil.wechat.message.constant;
  * @create 11/27/2018 10:33 PM
  * @since 1.0
  */
-public class MsgTypeConstant {
+public class WechatMessageConstant {
 
     //请求消息类型：文本
     public static final String REQ_MESSAGE_TYPE_TEXT = "text";

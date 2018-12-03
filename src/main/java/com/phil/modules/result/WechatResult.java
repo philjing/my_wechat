@@ -40,6 +40,12 @@ public class WechatResult implements Serializable {
     //是否是xml
     private boolean xml;
 
+    //是否需要发模板消息
+    private boolean template;
+
+    //是否需要发图文消息
+    private boolean news;
+
     public String toXml() {
         if (response == null) {
             return "error";
