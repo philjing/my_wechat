@@ -1,20 +1,27 @@
+/**
+ * FileName: AuthAccessToken
+ * Author:   Phil
+ * Date:     12/4/2018 2:14 PM
+ * Description:
+ * History:
+ * <author>          <time>          <version>          <desc>
+ * 作者姓名           修改时间           版本号              描述
+ */
 package com.phil.wechat.auth.model.response;
 
 import com.google.gson.annotations.SerializedName;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
- * 网页授权access_token
+ * 〈一句话功能简述〉<br>
+ * 〈网页授权access_token〉
  *
- * @author phil
- * @date 2017年7月2日
+ * @author Phil
+ * @create 12/4/2018 2:14 PM
+ * @since 1.0
  */
-@Getter
-@Setter
 public class AuthAccessToken extends AccessToken {
 
-    private static final long serialVersionUID = -7322304990185215263L;
+    private static final long serialVersionUID = -525656415464372637L;
 
     @SerializedName("refresh_token")
     private String refreshToken; // 用户刷新access_token

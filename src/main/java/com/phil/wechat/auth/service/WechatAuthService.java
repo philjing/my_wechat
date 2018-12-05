@@ -10,7 +10,7 @@
 package com.phil.wechat.auth.service;
 
 import com.phil.modules.result.ResultState;
-import com.phil.wechat.auth.model.AbstractParams;
+import com.phil.wechat.auth.model.BasicAuthParam;
 import com.phil.wechat.auth.model.response.AuthAccessToken;
 import com.phil.wechat.auth.model.response.AuthUserInfo;
 
@@ -39,7 +39,7 @@ public interface WechatAuthService {
      * @return
      * @throws Exception
      */
-    String getAuthPath(AbstractParams basic, String url) throws Exception;
+    String getAuthUrl(BasicAuthParam basic, String url);
 
     /**
      * 获取网页授权凭证
@@ -48,7 +48,7 @@ public interface WechatAuthService {
      * @param url
      * @return
      */
-    AuthAccessToken getAuthAccessToken(AbstractParams basic, String url);
+    AuthAccessToken getAuthAccessToken(BasicAuthParam basic, String url);
 
     /**
      * 刷新网页授权验证
@@ -57,7 +57,7 @@ public interface WechatAuthService {
      * @param url   请求路径
      * @return 新的网页授权验证
      */
-    AuthAccessToken refreshAuthAccessToken(AbstractParams basic, String url);
+    AuthAccessToken refreshAuthAccessToken(BasicAuthParam basic, String url);
 
     /**
      * 通过网页授权获取用户信息
@@ -77,12 +77,4 @@ public interface WechatAuthService {
      * openid"}失败
      */
     ResultState authToken(String accessToken, String openid);
-
-    /**
-     * 获取jsapi_ticket 调用微信JS接口的临时票据
-     *
-     * @param accessToken 网页授权接口调用凭证
-     * @return 临时票据
-     */
-    String getTicket(String accessToken);
 }

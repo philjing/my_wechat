@@ -16,17 +16,17 @@ import com.phil.modules.util.HttpUtil;
 import com.phil.modules.util.JsonUtil;
 import com.phil.modules.util.RedisUtils;
 import com.phil.wechat.auth.config.WechatAuthConfig;
-import com.phil.wechat.auth.model.AbstractParams;
+import com.phil.wechat.auth.model.BasicAuthParam;
 import com.phil.wechat.auth.model.response.AccessToken;
 import com.phil.wechat.auth.model.response.AuthAccessToken;
 import com.phil.wechat.auth.model.response.AuthUserInfo;
-import com.phil.wechat.auth.model.response.JsapiTicket;
 import com.phil.wechat.auth.service.WechatAuthService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -57,11 +57,8 @@ public class WechatAuthServiceImpl implements WechatAuthService {
 
     /**
      * 获取授权凭证token
-     * <p>
-     * //     * @param appid  应用appid
-     * //     * @param secret 应用密匙
      *
-     * @return json格式的字符串
+     * @return 授权凭证token
      */
     @Override
     public String getAccessToken() {
@@ -95,9 +92,14 @@ public class WechatAuthServiceImpl implements WechatAuthService {
      * @throws Exception
      */
     @Override
-    public String getAuthPath(AbstractParams basic, String url) throws Exception {
+    public String getAuthUrl(BasicAuthParam basic, String url) {
         Map<String, String> params = basic.getParams();
-        return HttpUtil.setParmas(url, params, "") + "#wechat_redirect";
+        try {
+            return HttpUtil.setParmas(url, params, "") + "#wechat_redirect";
+        } catch (Exception e) {
+            log.debug("error" + e.getMessage());
+        }
+        return null;
     }
 
     /**
@@ -108,7 +110,7 @@ public class WechatAuthServiceImpl implements WechatAuthService {
      * @return
      */
     @Override
-    public AuthAccessToken getAuthAccessToken(AbstractParams basic, String url) {
+    public AuthAccessToken getAuthAccessToken(BasicAuthParam basic, String url) {
         try {
             String result = HttpUtil.doGet(wechatAuthConfig.getGetOauthTokenUrl(), basic.getParams());
             return JsonUtil.fromJson(result, AuthAccessToken.class);
@@ -126,7 +128,7 @@ public class WechatAuthServiceImpl implements WechatAuthService {
      * @return 新的网页授权验证
      */
     @Override
-    public AuthAccessToken refreshAuthAccessToken(AbstractParams basic, String url) {
+    public AuthAccessToken refreshAuthAccessToken(BasicAuthParam basic, String url) {
         try {
             String result = HttpUtil.doGet(wechatAuthConfig.getRefreshOauthTokenUrl(), basic.getParams());
             return JsonUtil.fromJson(result, AuthAccessToken.class);
@@ -146,9 +148,9 @@ public class WechatAuthServiceImpl implements WechatAuthService {
     @Override
     public AuthUserInfo getAuthUserInfo(String accessToken, String openid) {
         // 通过网页授权获取用户信息
-        Map<String, String> params = new TreeMap<>();
-        params.put("openid", openid);
+        Map<String, String> params = new HashMap<>();
         params.put("access_token", accessToken);
+        params.put("openid", openid);
         String result = HttpUtil.doGet(wechatAuthConfig.getSnsUserinfoUrl(), params);
         try {
             return JsonUtil.fromJson(result, AuthUserInfo.class);
@@ -168,30 +170,11 @@ public class WechatAuthServiceImpl implements WechatAuthService {
      */
     @Override
     public ResultState authToken(String accessToken, String openid) {
-        Map<String, String> params = new TreeMap<>();
+        Map<String, String> params = new HashMap<>();
         params.put("access_token", accessToken);
         params.put("openid", openid);
         String jsonResult = HttpUtil.doGet(
                 wechatAuthConfig.getCheckSnsAuthStatusUrl(), params);
         return JsonUtil.fromJson(jsonResult, ResultState.class);
-    }
-
-    /**
-     * 获取jsapi_ticket 调用微信JS接口的临时票据
-     *
-     * @param accessToken 网页授权接口调用凭证
-     * @return 临时票据
-     */
-    @Override
-    public String getTicket(String accessToken) {
-        Map<String, String> params = new TreeMap<>();
-        params.put("access_token", accessToken);
-        params.put("type", "jsapi");
-        String result = HttpUtil.doGet(wechatAuthConfig.getGetTicketUrl(), params);
-        JsapiTicket jsapiTicket = JsonUtil.fromJson(result, JsapiTicket.class);
-        if (jsapiTicket.getErrcode() == 0) {
-            return jsapiTicket.getTicket();
-        }
-        return null;
     }
 }

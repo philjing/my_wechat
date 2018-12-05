@@ -27,7 +27,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @XStreamAlias("xml")
-public class ImageMessage extends AbstractMessage {
+public class ImageMessage extends ResponseMessage {
 
     private static final long serialVersionUID = 6299547594284021351L;
 

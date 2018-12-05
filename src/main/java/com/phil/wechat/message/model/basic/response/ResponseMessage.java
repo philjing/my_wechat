@@ -31,7 +31,7 @@ import java.io.Serializable;
 @Setter
 @ToString
 @XStreamAlias("xml")
-public abstract class AbstractMessage implements Serializable {
+public abstract class ResponseMessage implements Serializable {
 
     private static final long serialVersionUID = 4684307234530530252L;
 

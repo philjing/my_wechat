@@ -27,7 +27,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @XStreamAlias("xml")
-public class VideoMessage extends AbstractMessage {
+public class VideoMessage extends ResponseMessage {
 
     private static final long serialVersionUID = 3521644245603474470L;
 
@@ -54,5 +54,9 @@ public class VideoMessage extends AbstractMessage {
         @XStreamAlias("Description")
         @XStreamConverter(CDATAConvert.class)
         private String description;
+
+        public Video(String mediaId) {
+            this.mediaId = mediaId;
+        }
     }
 }

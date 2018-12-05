@@ -29,7 +29,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @XStreamAlias("xml")
-public class TextMessage extends AbstractMessage {
+public class TextMessage extends ResponseMessage {
 
     private static final long serialVersionUID = -4159811830464938745L;
 

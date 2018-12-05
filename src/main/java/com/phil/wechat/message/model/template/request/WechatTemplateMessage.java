@@ -40,8 +40,7 @@ public class WechatTemplateMessage implements Serializable {
 
     private Map<String, Map<String, String>> data; //data数据
 
-    public WechatTemplateMessage(String touser, String templateId, String url) {
-        this.touser = touser;
+    public WechatTemplateMessage(String templateId, String url) {
         this.templateId = templateId;
         this.url = url;
     }

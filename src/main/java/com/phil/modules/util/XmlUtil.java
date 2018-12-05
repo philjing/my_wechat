@@ -9,7 +9,7 @@
  */
 package com.phil.modules.util;
 
-import com.phil.wechat.message.model.basic.response.AbstractMessage;
+import com.phil.wechat.message.model.basic.response.ResponseMessage;
 import com.phil.wechat.message.model.basic.response.MusicMessage;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
@@ -17,7 +17,6 @@ import com.thoughtworks.xstream.mapper.MapperWrapper;
 import com.thoughtworks.xstream.security.AnyTypePermission;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -122,14 +121,11 @@ public class XmlUtil {
      * @throws IOException
      * @throws SAXException
      */
-    public static Map<String, Object> toMap(String xml, String encoding)
+    public static Map<String, Object> toMap(String xml)
             throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
-        if (StringUtils.isEmpty(encoding)) {
-            encoding = StandardCharsets.UTF_8.name();
-        }
-        InputStream is = IOUtils.toInputStream(xml, encoding);
+        InputStream is = IOUtils.toInputStream(xml);
         org.w3c.dom.Document document = builder.parse(is);
         // 获取到document里面的全部结点
         org.w3c.dom.NodeList allNodes = document.getFirstChild().getChildNodes();
@@ -207,7 +203,7 @@ public class XmlUtil {
                 "<Content><![CDATA[ffff]]></Content>\n" +
                 "<MsgId>6628573429517280185</MsgId>\n" +
                 "</xml>";
-        System.out.println(XmlUtil.fromXml(xml, AbstractMessage.class));
+        System.out.println(XmlUtil.fromXml(xml, ResponseMessage.class));
 
 
 //        TextMessage message = new TextMessage();
@@ -220,7 +216,7 @@ public class XmlUtil {
 //        System.out.println(StringEscapeUtils.unescapeXml(XmlUtil.toXml(message)));
 //
         MusicMessage musicMessage = new MusicMessage();
-        MusicMessage.Music music = new MusicMessage.Music();
+        MusicMessage.Music music = new MusicMessage.Music("K0ltDTmsW2dfgs32Fc3mU_NiIAOev_U_mU2Yqa6iSv8KPF5e5WE7yC");
         music.setDescription("de");
         music.setHqMusicUrl("hq");
         musicMessage.setMusic(music);

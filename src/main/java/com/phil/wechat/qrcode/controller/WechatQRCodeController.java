@@ -100,10 +100,10 @@ public class WechatQRCodeController {
         }
         String ticket;
         if (!Objects.isNull(params.get("sceneStr"))) {
-            ticket = wechatQRCodeService.createTempTicket(accessToken, params.get("sceneStr"), 0);
+            ticket = wechatQRCodeService.createForeverTicket(accessToken, params.get("sceneStr"));
             data.put("msg", "生成永久字符串二维码成功");
         } else {
-            ticket = wechatQRCodeService.createTempTicket(accessToken, Integer.valueOf(params.get("sceneId")), 0);
+            ticket = wechatQRCodeService.createForeverTicket(accessToken, Integer.valueOf(params.get("sceneId")));
             data.put("msg", "生成永久整型二维码成功");
         }
         String url = wechatQRCodeService.showQrCode(accessToken, ticket, true);

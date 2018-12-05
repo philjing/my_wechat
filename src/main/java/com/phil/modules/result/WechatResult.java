@@ -31,6 +31,9 @@ public class WechatResult implements Serializable {
 
     private static final long serialVersionUID = -1470168749001663805L;
 
+    //回复消息的Xml
+    private String respXml;
+
     //需要返回的bean
     private Object response;
 
@@ -46,9 +49,13 @@ public class WechatResult implements Serializable {
     //是否需要发图文消息
     private boolean news;
 
+    //比如推送模板消息的json等
+    private String respJson;
+
+    //需要返回的bean的xml
     public String toXml() {
         if (response == null) {
-            return "error";
+            return "";
         }
         return XmlUtil.toXml(response);
     }

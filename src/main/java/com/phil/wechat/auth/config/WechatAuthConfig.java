@@ -30,20 +30,21 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "wechat.auth")
 public class WechatAuthConfig {
 
+    //获取凭证
     private String getAccessTokenUrl;
-
+    //授权链接
     private String authorizeOauthUrl;
-
+    //获取Oauth token
     private String getOauthTokenUrl;
-
+    //刷新token
     private String refreshOauthTokenUrl;
-
+    //获取授权用户信息
     private String snsUserinfoUrl;
-
+    //判断用户accesstoken是否有效
     private String checkSnsAuthStatusUrl;
-
+    //授权登陆链接
     private String qrConnectUrl;
-
+    //获取jsapi-ticket
     private String getTicketUrl;
 
 }

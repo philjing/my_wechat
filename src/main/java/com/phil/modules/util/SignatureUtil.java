@@ -40,10 +40,10 @@ public class SignatureUtil {
      * SHA1加密 验证签名
      *
      * @param signature 微信签名
-     * @param params token,timestamp,nonce
+     * @param params    token,timestamp,nonce
      * @return 是否符合
      */
-    public static boolean checkSignature(String signature, String ... params) {
+    public static boolean checkSignature(String signature, String... params) {
         Arrays.sort(params);
         String str = StringUtils.join(params);
         String sign = DigestUtils.sha1Hex(str);
@@ -121,23 +121,23 @@ public class SignatureUtil {
      * @return API签名是否有效
      */
     public static boolean checkValidPaySign(String apiXml, String apiKey) {
+        Map<String, Object> map = null;
+        try {
+            map = XmlUtil.toMap(apiXml);
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            log.error(apiXml + "转换出错了");
+            return false;
+        }
+        String apiSign = (String) map.get("sign");
         if (StringUtils.isEmpty(apiXml)) {
             log.error("API返回的数据签名数据不存在");
             return false;
         }
-        Map<String, Object> map = null;
-        try {
-            map = XmlUtil.toMap(apiXml, null);
-            return false;
-        } catch (ParserConfigurationException | IOException | SAXException e) {
-            log.error(apiXml + "转换出错了");
-        }
-        String apiSign = (String) map.get("sign");
         // 将API返回的数据根据用签名算法进行计算新的签名，用来跟API返回的签名进行比较
         Map<String, Object> keys = new HashMap<>();
         keys.put("key", apiKey);
-        String reSignXml = reSign(map, keys, new String[]{"sign"});
-        if (!Objects.equals(apiXml, reSignXml)) {
+        String reSign = reSign(map, keys, new String[]{"sign"});
+        if (!Objects.equals(apiSign, reSign)) {
             log.error("API返回的数据签名验证不通过");
             return false;
         }

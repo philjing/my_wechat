@@ -88,9 +88,9 @@ public class DateUtils {
      * @throws Exception
      * @author Phil
      */
-    public static String getDateString(String pattern) throws Exception {
+    public static String getDateString(String pattern) {
         if (StringUtils.isBlank(pattern)) {
-            throw new Exception("请指定日期格式");
+            pattern = DATE_FORMAT;
         }
         Timestamp time = getSysDate();
         FastDateFormat fdt = FastDateFormat.getInstance(pattern);

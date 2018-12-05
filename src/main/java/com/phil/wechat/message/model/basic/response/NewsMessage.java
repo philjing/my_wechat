@@ -30,7 +30,7 @@ import java.util.List;
 @Getter
 @Setter
 @XStreamAlias("xml")
-public class NewsMessage extends AbstractMessage {
+public class NewsMessage extends ResponseMessage {
 
     private static final long serialVersionUID = -2351122602671657550L;
 

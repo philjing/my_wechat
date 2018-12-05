@@ -27,7 +27,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @XStreamAlias("xml")
-public class MusicMessage extends AbstractMessage {
+public class MusicMessage extends ResponseMessage {
 
     private static final long serialVersionUID = 1553067077919661894L;
 
@@ -63,6 +63,11 @@ public class MusicMessage extends AbstractMessage {
         @XStreamAlias("HQMusicUrl")
         @XStreamConverter(value = CDATAConvert.class)
         private String hqMusicUrl;
+
+        public Music(String thumbMediaId) {
+            this.thumbMediaId = thumbMediaId;
+        }
+
     }
 
 
