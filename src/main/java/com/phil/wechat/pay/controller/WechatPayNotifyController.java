@@ -58,9 +58,9 @@ public class WechatPayNotifyController {
                     + "<return_msg><![CDATA[签名验证错误]]></return_msg>" + "</xml> ";
         }
         try (BufferedOutputStream out = new BufferedOutputStream(response.getOutputStream())) {
-            out.write(resXml.getBytes());
-            out.flush();
+            out.write(resXml.getBytes());out.flush();
         } catch (Exception e) {
+
             log.error(e.getMessage());
         }
         return resultState;

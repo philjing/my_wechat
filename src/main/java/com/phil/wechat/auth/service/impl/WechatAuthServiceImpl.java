@@ -22,7 +22,6 @@ import com.phil.wechat.auth.model.response.AuthAccessToken;
 import com.phil.wechat.auth.model.response.AuthUserInfo;
 import com.phil.wechat.auth.service.WechatAuthService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -43,9 +42,6 @@ import java.util.TreeMap;
 @Slf4j
 public class WechatAuthServiceImpl implements WechatAuthService {
 
-    @Value("${wechat.token}")
-    private String token;
-
     @Resource
     RedisUtils redisUtils;
 
@@ -63,7 +59,7 @@ public class WechatAuthServiceImpl implements WechatAuthService {
     @Override
     public String getAccessToken() {
         String accessToken = null;
-        if (Objects.isNull(redisUtils.get(token))) {
+        if (Objects.isNull(redisUtils.get(wechatAccountConfig.getToken()))) {
             Map<String, String> map = new TreeMap<>();
             map.put("appid", wechatAccountConfig.getAppid());
             map.put("secret", wechatAccountConfig.getAppsecret());
@@ -73,11 +69,11 @@ public class WechatAuthServiceImpl implements WechatAuthService {
             if (bean != null) {
                 accessToken = bean.getAccessToken();
                 log.info("从微信服务器获取的授权凭证{}", accessToken);
-                redisUtils.set(token, accessToken, 60 * 120);
+                redisUtils.set(wechatAccountConfig.getToken(), accessToken, 60 * 120);
                 log.info("从微信服务器获取的token缓存到Redis");
             }
         } else {
-            accessToken = redisUtils.get(token).toString();
+            accessToken = redisUtils.get(wechatAccountConfig.getToken()).toString();
             log.info("从redis中获取的授权凭证{}", accessToken);
         }
         return accessToken;

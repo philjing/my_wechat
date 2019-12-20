@@ -14,13 +14,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * 〈一句话功能简述〉<br>
- * 〈主启动程序〉
- *
- * @author Phil
- * @create 11/20/2018 9:50 PM
- * @since 1.0
- */
+* @Description:  主程序入口
+* @Author: Mr.Jing
+* @Date: 2019/12/20
+*/
 @SpringBootApplication
 @EnableScheduling
 public class WechatMainApplication {
@@ -29,5 +26,4 @@ public class WechatMainApplication {
         // Spring应用启动起来
         SpringApplication.run(WechatMainApplication.class, args);
     }
-
 }

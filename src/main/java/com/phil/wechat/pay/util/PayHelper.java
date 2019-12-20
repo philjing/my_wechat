@@ -53,7 +53,6 @@ public class PayHelper {
      *
      * @return
      */
-
     //时间戳+机器码+pid+随机数
     //时间戳+UUID
     public static String createOutTradeNo() {

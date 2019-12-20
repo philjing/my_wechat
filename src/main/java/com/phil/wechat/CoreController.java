@@ -39,12 +39,10 @@ import java.util.Objects;
 import java.util.Random;
 
 /**
- * 〈一句话功能简述〉
  * 〈接入微信并处理消息事件〉
  *
- * @author Phil
- * @create 8/1/2018 15:52
- * @since 1.0.0
+ * @Author: Mr.Jing
+ * @Date: 2019/12/20
  */
 @RestController
 @RequestMapping("api/core/weixin/V1")
@@ -187,12 +185,12 @@ public class CoreController {
                         //用户取消注时
                         case WechatMessageConstant.EVENT_TYPE_UNSUBSCRIBE:
 //                            respXml = wechatMessageService.doUnsubscribe(message);
-                            log.info("用户取消关注了┭┮﹏┭┮");
+                            log.debug("用户取消关注了┭┮﹏┭┮");
                             break;
                         //上报地理位置事件
                         case WechatMessageConstant.EVENT_TYPE_LOCATION:
 //                            respXml = wechatMessageService.doLocation(message);
-                            log.info("用户上报地理位置事件了");
+                            log.debug("用户上报地理位置事件了");
                             break;
                         //自定义菜单事件 点击菜单拉取消息时的事件推送
                         case WechatMessageConstant.EVENT_TYPE_CLICK:

@@ -3,11 +3,12 @@ server:
 
 #wechat
 wechat:
-  appid:
-  appsecret:
-  token:
+  account:
+    appid: xxp
+    appsecret: xxp
+    token: xxp
 
   pay:
-    mchid:
-    apikey:
+    mchid: testp
+    apikey: testp
 
