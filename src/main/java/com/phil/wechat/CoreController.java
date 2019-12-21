@@ -26,11 +26,15 @@ import com.phil.wechat.message.service.WechatTemplateMessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
@@ -44,7 +48,7 @@ import java.util.Random;
  * @Author: Mr.Jing
  * @Date: 2019/12/20
  */
-@RestController
+@Controller
 @RequestMapping("api/core/weixin/V1")
 @Slf4j
 public class CoreController {
@@ -76,11 +80,12 @@ public class CoreController {
      * echostr   微信端发来的验证字符串
      */
     @GetMapping(value = "wechat")
-    public String validate(@RequestParam(value = "signature") String signature,
-                           @RequestParam(value = "timestamp") String timestamp,
-                           @RequestParam(value = "nonce") String nonce,
-                           @RequestParam(value = "echostr") String echostr) {
-        return SignatureUtil.checkSignature(signature, wechatAccountConfig.getToken(), timestamp, nonce) ? echostr : null;
+    public void validate(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String signature = request.getParameter("signature");
+        String timestamp = request.getParameter("timestamp");
+        String nonce = request.getParameter("nonce");
+        String echostr = request.getParameter("echostr");
+        IOUtils.write(SignatureUtil.checkSignature(signature, wechatAccountConfig.getToken(), timestamp, nonce) ? echostr : null, response.getOutputStream());
     }
 
     /**

@@ -5,7 +5,7 @@
     <groupId>com.phil</groupId>
     <artifactId>my-wechat</artifactId>
     <version>1.0</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <!-- 定义公共资源版本 -->
     <parent>

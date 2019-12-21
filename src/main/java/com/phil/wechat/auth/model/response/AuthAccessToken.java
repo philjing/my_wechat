@@ -10,6 +10,7 @@
 package com.phil.wechat.auth.model.response;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.Data;
 
 /**
  * 〈一句话功能简述〉<br>
@@ -19,6 +20,7 @@ import com.google.gson.annotations.SerializedName;
  * @create 12/4/2018 2:14 PM
  * @since 1.0
  */
+@Data
 public class AuthAccessToken extends AccessToken {
 
     private static final long serialVersionUID = -525656415464372637L;
