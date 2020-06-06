@@ -29,7 +29,7 @@
         <zxing.version>3.3.2</zxing.version>
         <xstream.version>1.4.11.1</xstream.version>
         <xmlpull-xpp3.version>3.0.0.20130526</xmlpull-xpp3.version>
-        <dom4j.version>2.1.1</dom4j.version>
+        <dom4j.version>2.1.3</dom4j.version>
         <tika.version>1.23</tika.version>
         <httpclient.version>4.5.5</httpclient.version>
         <poi.version>3.17</poi.version>
