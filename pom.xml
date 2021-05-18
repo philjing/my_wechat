@@ -27,7 +27,7 @@
         <commons-io.versiom>2.4</commons-io.versiom>
         <commons-collections4.version>4.1</commons-collections4.version>
         <zxing.version>3.3.2</zxing.version>
-        <xstream.version>1.4.11.1</xstream.version>
+        <xstream.version>1.4.17</xstream.version>
         <xmlpull-xpp3.version>3.0.0.20130526</xmlpull-xpp3.version>
         <dom4j.version>2.1.1</dom4j.version>
         <tika.version>1.23</tika.version>
