@@ -31,7 +31,7 @@
         <xmlpull-xpp3.version>3.0.0.20130526</xmlpull-xpp3.version>
         <dom4j.version>2.1.1</dom4j.version>
         <tika.version>1.23</tika.version>
-        <httpclient.version>4.5.5</httpclient.version>
+        <httpclient.version>4.5.13</httpclient.version>
         <poi.version>3.17</poi.version>
         <xmlbeans.version>2.6.0</xmlbeans.version>
     </properties>
